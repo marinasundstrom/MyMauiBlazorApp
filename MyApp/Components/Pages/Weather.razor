@@ -1,0 +1,46 @@
+﻿@page "/weather"
+@using MyApi
+@inject IWeatherForecastClient WeatherForecastClient
+@inject IToastService ToastService
+
+<h1>Weather</h1>
+
+<p>This component demonstrates showing data.</p>
+
+<FluentDataGrid Items="@forecasts" Loading="@(forecasts is null)">
+    <ChildContent>
+        <PropertyColumn Property="@(p => p.Date)" Format="yyyy-MM-dd" Sortable="true" />
+        <PropertyColumn Property="@(p => p.TemperatureC)" Sortable="true" />
+        <PropertyColumn Property="@(p => p.TemperatureF)" Sortable="true" />
+        <PropertyColumn Property="@(p => p.Summary)" Sortable="true" />
+    </ChildContent>
+    <EmptyContent>
+        <FluentIcon Value="@(new Icons.Filled.Size24.Crown())" Color="@Color.Accent" />&nbsp; Nothing to see here.
+        Carry on!
+    </EmptyContent>
+    <LoadingContent>
+        <FluentStack Orientation="Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Center">
+            Loading...<br />
+            <FluentProgress Width="240px" />
+        </FluentStack>
+    </LoadingContent>
+</FluentDataGrid>
+
+@code {
+    private IQueryable<WeatherForecast>? forecasts;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Console.WriteLine("Foo");
+        try 
+        {
+            forecasts = (await WeatherForecastClient.GetWeatherForecastAsync()).AsQueryable();
+        }
+        catch(Exception e) 
+        {
+            Console.WriteLine(e);
+
+            ToastService.ShowInfo("Failed to load forecasts");
+        }
+    }
+}
