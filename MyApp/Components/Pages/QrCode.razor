@@ -1,0 +1,25 @@
+@page "/qrcode"
+@using CommunityToolkit.Maui.Views;
+@using MauiPages
+
+<h1>Scan QR Code</h1>
+
+<FluentButton Appearance="Appearance.Accent" @onclick="ScanCode">Scan</FluentButton>
+
+@if(value is not null) 
+{
+    <div style="margin-top: 15px;">
+        <FluentCard>
+            @value
+        </FluentCard>
+    </div>
+}
+
+@code {
+    private string? value;
+
+    private async Task ScanCode()
+    {
+        value = (string?)await App.Current!.MainPage!.ShowPopupAsync(new ScanQrCodePopup());
+    }
+}

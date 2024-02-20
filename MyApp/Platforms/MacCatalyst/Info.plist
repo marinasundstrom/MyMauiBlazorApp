@@ -38,5 +38,7 @@
     <array>
         <string>fetch</string>
     </array>
+    <key>NSCameraUsageDescription</key>
+    <string>This app uses barcode scanning to...</string>
 </dict>
 </plist>
