@@ -18,6 +18,7 @@ public static class MauiProgram
             .ConfigureFonts(fonts =>
             {
                 fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
+                fonts.AddFont("SegoeUI-Regular.ttf", "Segoe UI");
             });
 
         builder.Services.AddFluentUIComponents();
