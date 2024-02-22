@@ -1,3 +1,7 @@
+using Microsoft.EntityFrameworkCore;
+using MyApi;
+using MyApi.Data;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -12,6 +16,8 @@ builder.Services.AddOpenApiDocument(config =>
         document.Info.Title = "MyApi";
     };
 });
+
+builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DbConnection")));
 
 var app = builder.Build();
 
@@ -44,6 +50,53 @@ app.MapGet("/weatherforecast", () =>
 .WithName("WeatherForecast_GetWeatherForecast")
 .WithTags("WeatherForecast")
 .WithOpenApi();
+
+app.MapPersonsEndpoints();
+
+try
+{
+    using (var scope = app.Services.CreateScope())
+    {
+        var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
+
+        //await context.Database.MigrateAsync();
+
+        //await context.Database.EnsureDeletedAsync();
+        await context.Database.EnsureCreatedAsync();
+
+        if (context.Database.HasPendingModelChanges())
+        {
+            logger.LogWarning("The entity model has changed since the last migration.");
+        }
+
+        if (args.Contains("--seed"))
+        {
+            await SeedData(context, configuration, logger);
+            return;
+        }
+    }
+}
+catch (Exception e)
+{
+    Console.WriteLine(e);
+}
+
+await app.RunAsync();
+
+static async Task SeedData(ApplicationDbContext context, IConfiguration configuration, ILogger<Program> logger)
+{
+    try
+    {
+        //await Seed.SeedData(context, configuration);
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "An error occurred seeding the " +
+            "database. Error: {Message}", ex.Message);
+    }
+}
 
 app.Run();
 

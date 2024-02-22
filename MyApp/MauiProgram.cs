@@ -32,7 +32,7 @@ public static class MauiProgram
 
         builder.Services.AddHttpClient("MyApi", httpClient =>
         {
-            httpClient.BaseAddress = new Uri("https://hlms1tb6-5286.uks1.devtunnels.ms");
+            httpClient.BaseAddress = new Uri("https://hx460ksx-5286.euw.devtunnels.ms");
         });
 
         builder.Services.AddHttpClient<IWeatherForecastClient>("MyApi")
