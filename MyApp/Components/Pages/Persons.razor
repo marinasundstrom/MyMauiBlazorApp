@@ -7,7 +7,7 @@
 
 <p>Lorem ipsum</p>
 
-<FluentDataGrid TGridItem="Person" Loading="true" ItemsProvider="personProvider">
+<FluentDataGrid TGridItem="Person" Loading="true" ItemsProvider="personProvider" Pagination="pagination">
     <ChildContent>
         <PropertyColumn Property="@(p => p.FirstName)" Sortable="true" />
         <PropertyColumn Property="@(p => p.GivenName)" Sortable="true" />
@@ -27,8 +27,11 @@
     </LoadingContent>
 </FluentDataGrid>
 
+<FluentPaginator State="@pagination" />
+
 @code {
     private GridItemsProvider<Person> personProvider = default!;
+    PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
 
     protected override void OnInitialized()
     {
@@ -36,7 +39,7 @@
         {
             try
             {
-                var results = await PersonsClient.GetPersonsAsync(req.StartIndex + 1, req.Count);
+                var results = await PersonsClient.GetPersonsAsync(pagination.CurrentPageIndex + 1, pagination.ItemsPerPage);
 
                 return GridItemsProviderResult.From(
     items: results.Items,
