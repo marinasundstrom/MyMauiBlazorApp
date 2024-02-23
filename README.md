@@ -29,3 +29,11 @@ devtunnel host -p 5286 -a
 ``-a`` means anonymous - the connection will not prompt for login
 
 Make sure to update the URL in MauiProgram.cs.
+
+## Run database
+
+To start the Postgresql database:
+
+```
+docker compose up
+```
