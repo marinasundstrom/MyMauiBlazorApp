@@ -1,13 +1,16 @@
 ﻿@page "/persons"
 @using MyApi
 @inject IPersonsClient PersonsClient
+@inject IDialogService DialogService
 @inject IToastService ToastService
 
 <h1>Persons</h1>
 
 <p>Lorem ipsum</p>
 
-<FluentDataGrid TGridItem="Person" Loading="true" ItemsProvider="personProvider" Pagination="pagination">
+<FluentButton Appearance="Appearance.Accent" IconStart="@(new Icons.Regular.Size20.People())" OnClick="@AddPerson">Add person</FluentButton>
+
+<FluentDataGrid @ref="personsDataGrid" TGridItem="Person" Loading="true" ItemsProvider="personProvider" Pagination="pagination">
     <ChildContent>
         <PropertyColumn Property="@(p => p.FirstName)" Sortable="true" />
         <PropertyColumn Property="@(p => p.GivenName)" Sortable="true" />
@@ -30,7 +33,8 @@
 <FluentPaginator State="@pagination" />
 
 @code {
-    private GridItemsProvider<Person> personProvider = default!;
+    FluentDataGrid<Person> personsDataGrid = default!;
+    GridItemsProvider<Person> personProvider = default!;
     PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
 
     protected override void OnInitialized()
@@ -54,5 +58,38 @@
     totalItemCount: 0);
             }
         };
+    }
+
+    AddPersonDialog.RegisterContent DialogData { get; set; } = new() { Id = 1 };
+
+    private async Task AddPerson()
+    {
+        // Create a new instance of DialogData
+        // to allow the user to cancel the update
+        var data = DialogData with { Id = 0 } ?? new();
+
+        var dialog = await DialogService.ShowDialogAsync<AddPersonDialog>(data, new DialogParameters()
+            {
+                Height = "600px",
+                Title = $"New person",
+                PreventDismissOnOverlayClick = true,
+                PreventScroll = true,
+            });
+
+        var result = await dialog.Result;
+        if (!result.Cancelled && result.Data != null)
+        {
+            data = (AddPersonDialog.RegisterContent)result.Data;
+
+            await PersonsClient.CreatePersonAsync(new MyApi.CreatePersonRequest {
+                FirstName = data.FirstName,
+                GivenName = data.GivenName,
+                MiddleName = data.MiddleName,
+                LastName = data.LastName,
+                DateOfBirth = data.DateOfBirth.GetValueOrDefault()
+            });
+
+            await personsDataGrid.RefreshDataAsync();
+        }
     }
 }
