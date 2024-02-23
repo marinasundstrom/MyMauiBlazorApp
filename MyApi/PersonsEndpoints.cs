@@ -12,15 +12,19 @@ public static class PersonsEndpoints
     {
         var group = app.MapGroup("/persons");
 
-        group.MapGet("/", async (int page = 1, int pageSize = 10, ApplicationDbContext context = default!, CancellationToken cancellationToken = default!) =>
+        group.MapGet("/", async Task<ItemsResult<Person>> (int page = 1, int pageSize = 10, ApplicationDbContext context = default!, CancellationToken cancellationToken = default!) =>
         {
             var query = context.Persons.AsQueryable();
+
+            var count = await query.CountAsync(cancellationToken);
 
             query = query
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize);
 
-            return await query.ToListAsync(cancellationToken);
+            return new ItemsResult<Person>(
+                Items: await query.ToListAsync(cancellationToken),
+                Total: count);
         })
         .WithName("Persons_GetPersons")
         .WithTags("Persons")
@@ -74,5 +78,7 @@ public static class PersonsEndpoints
         return app;
     }
 }
+
+public sealed record ItemsResult<T>(IEnumerable<T> Items, long Total);
 
 public sealed record CreatePersonRequest(string FirstName, string GivenName, string? MiddleName, string LastName, DateOnly DateOfBirth);

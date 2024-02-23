@@ -1,0 +1,55 @@
+﻿@page "/persons"
+@using MyApi
+@inject IPersonsClient PersonsClient
+@inject IToastService ToastService
+
+<h1>Persons</h1>
+
+<p>Lorem ipsum</p>
+
+<FluentDataGrid TGridItem="Person" Loading="true" ItemsProvider="personProvider">
+    <ChildContent>
+        <PropertyColumn Property="@(p => p.FirstName)" Sortable="true" />
+        <PropertyColumn Property="@(p => p.GivenName)" Sortable="true" />
+        <PropertyColumn Property="@(p => p.MiddleName)" Sortable="true" />
+        <PropertyColumn Property="@(p => p.LastName)" Sortable="true" />
+        <PropertyColumn Property="@(p => p.DateOfBirth)" Format="yyyy-MM-dd" Sortable="true" />
+    </ChildContent>
+    <EmptyContent>
+        <FluentIcon Value="@(new Icons.Filled.Size24.Crown())" Color="@Color.Accent" />&nbsp; Nothing to see here.
+        Carry on!
+    </EmptyContent>
+    <LoadingContent>
+        <FluentStack Orientation="Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Center">
+            Loading...<br />
+            <FluentProgress Width="240px" />
+        </FluentStack>
+    </LoadingContent>
+</FluentDataGrid>
+
+@code {
+    private GridItemsProvider<Person> personProvider = default!;
+
+    protected override void OnInitialized()
+    {
+        personProvider = async req =>
+        {
+            try
+            {
+                var results = await PersonsClient.GetPersonsAsync(req.StartIndex + 1, req.Count);
+
+                return GridItemsProviderResult.From(
+    items: results.Items,
+    totalItemCount: (int)results.Total);
+            }
+            catch (Exception e)
+            {
+                ToastService.ShowInfo("Failed to load persons");
+
+                return GridItemsProviderResult.From<Person>(
+    items: [],
+    totalItemCount: 0);
+            }
+        };
+    }
+}
