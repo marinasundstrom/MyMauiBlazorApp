@@ -4,22 +4,107 @@ info:
   title: MyApi
   version: 1.0.0
 servers:
-- url: http://localhost:5286
+  - url: http://localhost:5286
 paths:
   /weatherforecast:
     get:
       tags:
-      - WeatherForecast
+        - WeatherForecast
       operationId: WeatherForecast_GetWeatherForecast
       responses:
         200:
-          description: ''
+          description: ""
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/WeatherForecast'
+                  $ref: "#/components/schemas/WeatherForecast"
+  /persons:
+    get:
+      tags:
+        - Persons
+      operationId: Persons_GetPersons
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            format: int32
+            default: 1
+          x-position: 1
+        - name: pageSize
+          in: query
+          schema:
+            type: integer
+            format: int32
+            default: 10
+          x-position: 2
+      responses:
+        200:
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ItemsResultOfPerson"
+    post:
+      tags:
+        - Persons
+      operationId: Persons_CreatePerson
+      requestBody:
+        x-name: request
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreatePersonRequest"
+        required: true
+        x-position: 1
+      responses:
+        201:
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Person"
+  /persons/{id}:
+    get:
+      tags:
+        - Persons
+      operationId: Persons_GetPersonById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+          x-position: 1
+      responses:
+        200:
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Person"
+        404:
+          description: ""
+    delete:
+      tags:
+        - Persons
+      operationId: Persons_DeletePerson
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+          x-position: 1
+      responses:
+        200:
+          description: ""
+        404:
+          description: ""
 components:
   schemas:
     WeatherForecast:
@@ -38,3 +123,49 @@ components:
         TemperatureF:
           type: integer
           format: int32
+    ItemsResultOfPerson:
+      type: object
+      additionalProperties: false
+      properties:
+        Items:
+          type: array
+          items:
+            $ref: "#/components/schemas/Person"
+        Total:
+          type: integer
+          format: int64
+    Person:
+      type: object
+      additionalProperties: false
+      properties:
+        Id:
+          type: integer
+          format: int32
+        FirstName:
+          type: string
+        GivenName:
+          type: string
+        MiddleName:
+          type: string
+          nullable: true
+        LastName:
+          type: string
+        DateOfBirth:
+          type: string
+          format: date
+    CreatePersonRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        FirstName:
+          type: string
+        GivenName:
+          type: string
+        MiddleName:
+          type: string
+          nullable: true
+        LastName:
+          type: string
+        DateOfBirth:
+          type: string
+          format: date

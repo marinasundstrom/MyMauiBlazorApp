@@ -1,0 +1,15 @@
+
+version: '3.4'
+name: my-app
+
+services:
+  postgres:
+    image: postgres
+    ports:
+      - 5432:5432
+    volumes:
+      - ~/apps/postgres:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=S3cret
+      - POSTGRES_USER=User
+      # - POSTGRES_DB=citizix_db

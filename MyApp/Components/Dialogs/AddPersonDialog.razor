@@ -1,0 +1,102 @@
+@using System.ComponentModel.DataAnnotations
+@implements IDialogContentComponent<AddPersonDialog.RegisterContent>
+
+<!-- Header -->
+<FluentDialogHeader ShowDismiss="true">
+    <FluentStack VerticalAlignment="VerticalAlignment.Center">
+        <FluentIcon Value="@(new Icons.Regular.Size24.WindowApps())" />
+        <FluentLabel Typo="Typography.PaneHeader">
+            @Dialog.Instance.Parameters.Title
+        </FluentLabel>
+    </FluentStack>
+</FluentDialogHeader>
+
+<!-- Body -->
+<FluentDialogBody>
+    <EditForm EditContext="@_editContext" FormName="simple_register">
+        <DataAnnotationsValidator />
+
+        <FluentLabel Style="margin-bottom: 16px;">
+            All fields are required.
+        </FluentLabel>
+
+        <FluentTextField Name="firstName" @bind-Value="@Content.FirstName" Label="First Name" Required />
+
+        <FluentTextField Name="givenName" @bind-Value="@Content.GivenName" Label="Given Name" Required />
+
+        <FluentTextField Name="middleName" @bind-Value="@Content.MiddleName" Label="Middle Name" Required />
+
+        <FluentTextField Name="lastName" @bind-Value="@Content.LastName" Label="Last Name" Required />
+
+        <FluentDatePicker Name="dateOfBirth" @bind-Value="@Content.DateOfBirth" Label="Date of Birth" Required />
+
+        <div style="color: var(--error);">
+            <FluentValidationSummary />
+        </div>
+    </EditForm>
+</FluentDialogBody>
+
+<!-- Footer -->
+<FluentDialogFooter>
+    <FluentButton Appearance="Appearance.Accent" Disabled="@(!_editContext.Validate())" OnClick="@SaveAsync">
+        Add
+    </FluentButton>
+    <FluentButton Appearance="Appearance.Neutral" OnClick="@CancelAsync">
+        Cancel
+    </FluentButton>
+</FluentDialogFooter>
+
+@code
+{
+    private EditContext _editContext = default!;
+
+    [CascadingParameter]
+    public FluentDialog Dialog { get; set; } = default!;
+
+    [Parameter]
+    public AddPersonDialog.RegisterContent Content { get; set; } = default!;
+
+    protected override void OnInitialized()
+    {
+        _editContext = new EditContext(Content);
+    }
+
+    private async Task SaveAsync()
+    {
+        if (_editContext.Validate())
+        {
+            await Dialog.CloseAsync(Content);
+        }
+    }
+
+    private async Task CancelAsync()
+    {
+        await Dialog.CancelAsync();
+    }
+
+    public record RegisterContent
+    {
+        public int Id { get; set; } = 0;
+
+        [MinLength(3)]
+        [MaxLength(20)]
+        public string FirstName { get; set; } = string.Empty;
+
+        [Required]
+        [MinLength(3)]
+        [MaxLength(20)]
+        public string GivenName { get; set; } = string.Empty;
+
+        [MinLength(3)]
+        [MaxLength(20)]
+        public string? MiddleName { get; set; } = string.Empty;
+
+        [Required]
+        [MinLength(3)]
+        [MaxLength(20)]
+        public string LastName { get; set; } = string.Empty;
+
+        [Required]
+        public DateTime? DateOfBirth { get; set; }
+    }
+}

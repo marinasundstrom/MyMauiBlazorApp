@@ -1,0 +1,95 @@
+﻿@page "/persons"
+@using MyApi
+@inject IPersonsClient PersonsClient
+@inject IDialogService DialogService
+@inject IToastService ToastService
+
+<h1>Persons</h1>
+
+<p>Lorem ipsum</p>
+
+<FluentButton Appearance="Appearance.Accent" IconStart="@(new Icons.Regular.Size20.People())" OnClick="@AddPerson">Add person</FluentButton>
+
+<FluentDataGrid @ref="personsDataGrid" TGridItem="Person" Loading="true" ItemsProvider="personProvider" Pagination="pagination">
+    <ChildContent>
+        <PropertyColumn Property="@(p => p.FirstName)" Sortable="true" />
+        <PropertyColumn Property="@(p => p.GivenName)" Sortable="true" />
+        <PropertyColumn Property="@(p => p.MiddleName)" Sortable="true" />
+        <PropertyColumn Property="@(p => p.LastName)" Sortable="true" />
+        <PropertyColumn Property="@(p => p.DateOfBirth)" Format="yyyy-MM-dd" Sortable="true" />
+    </ChildContent>
+    <EmptyContent>
+        <FluentIcon Value="@(new Icons.Filled.Size24.Crown())" Color="@Color.Accent" />&nbsp; Nothing to see here.
+        Carry on!
+    </EmptyContent>
+    <LoadingContent>
+        <FluentStack Orientation="Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Center">
+            Loading...<br />
+            <FluentProgress Width="240px" />
+        </FluentStack>
+    </LoadingContent>
+</FluentDataGrid>
+
+<FluentPaginator State="@pagination" />
+
+@code {
+    FluentDataGrid<Person> personsDataGrid = default!;
+    GridItemsProvider<Person> personProvider = default!;
+    PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
+
+    protected override void OnInitialized()
+    {
+        personProvider = async req =>
+        {
+            try
+            {
+                var results = await PersonsClient.GetPersonsAsync(pagination.CurrentPageIndex + 1, pagination.ItemsPerPage);
+
+                return GridItemsProviderResult.From(
+    items: results.Items,
+    totalItemCount: (int)results.Total);
+            }
+            catch (Exception e)
+            {
+                ToastService.ShowInfo("Failed to load persons");
+
+                return GridItemsProviderResult.From<Person>(
+    items: [],
+    totalItemCount: 0);
+            }
+        };
+    }
+
+    AddPersonDialog.RegisterContent DialogData { get; set; } = new() { Id = 1 };
+
+    private async Task AddPerson()
+    {
+        // Create a new instance of DialogData
+        // to allow the user to cancel the update
+        var data = DialogData with { Id = 0 } ?? new();
+
+        var dialog = await DialogService.ShowDialogAsync<AddPersonDialog>(data, new DialogParameters()
+            {
+                Height = "600px",
+                Title = $"New person",
+                PreventDismissOnOverlayClick = true,
+                PreventScroll = true,
+            });
+
+        var result = await dialog.Result;
+        if (!result.Cancelled && result.Data != null)
+        {
+            data = (AddPersonDialog.RegisterContent)result.Data;
+
+            await PersonsClient.CreatePersonAsync(new MyApi.CreatePersonRequest {
+                FirstName = data.FirstName,
+                GivenName = data.GivenName,
+                MiddleName = data.MiddleName,
+                LastName = data.LastName,
+                DateOfBirth = data.DateOfBirth.GetValueOrDefault()
+            });
+
+            await personsDataGrid.RefreshDataAsync();
+        }
+    }
+}
