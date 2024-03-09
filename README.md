@@ -4,6 +4,8 @@ MAUI Blazor Hybrid with backend Web API.
 
 MAUI, Blazor, Fluent UI, NSwag (for Open API), MAUI Community Toolkit
 
+[Watch](https://www.youtube.com/watch?v=_8OOA4wmUKE) tech talk.
+
 ## Screenshots
 
 <img src="Screenshots/iPhone.png" width='250'>
