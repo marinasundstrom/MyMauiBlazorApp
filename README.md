@@ -30,6 +30,13 @@ devtunnel host -p 5286 -a
 
 Make sure to update the URL in MauiProgram.cs.
 
+```csharp
+builder.Services.AddHttpClient("MyApi", httpClient =>
+{
+    httpClient.BaseAddress = new Uri("https://6m3d3pnd-5286.euw.devtunnels.ms");
+});
+```
+
 ## Run database
 
 To start the Postgresql database:
