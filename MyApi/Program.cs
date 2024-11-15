@@ -24,8 +24,8 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseOpenApi(p => p.Path = "/swagger/{documentName}/swagger.yaml");
-    app.UseSwaggerUi(p => p.DocumentPath = "/swagger/{documentName}/swagger.yaml");
+    app.UseOpenApi(p => p.Path = "/swagger/{documentName}/openapi.yaml");
+    app.UseSwaggerUi(p => p.DocumentPath = "/swagger/{documentName}/openapi.yaml");
 }
 
 app.UseHttpsRedirection();
