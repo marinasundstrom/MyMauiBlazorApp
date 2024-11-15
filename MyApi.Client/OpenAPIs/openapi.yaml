@@ -20,6 +20,31 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/WeatherForecast"
+  /image/{id}:
+    post:
+      tags:
+        - Image
+      operationId: Image_UploadImage
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          x-position: 1
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                form:
+                  type: string
+                  format: binary
+                  nullable: true
+      responses:
+        200:
+          description: ""
   /persons:
     get:
       tags:

@@ -1,0 +1,69 @@
+﻿@page "/imageupload"
+@using MyApi
+@inject IImageClient ImageClient
+@inject IToastService ToastService
+
+<PageTitle>Image upload</PageTitle>
+
+<h1>Image upload</h1>
+
+@if (imageCaptured && stream is not null)
+{
+    <img src="base64:@StreamToBase64.ConvertStreamToBase64(stream)" />
+
+    <FluentButton Appearance="Appearance.Accent" @onclick="UploadImage">Upload</FluentButton>
+}
+
+<FluentButton Appearance="Appearance.Accent" @onclick="CaptureImage">
+    @if (imageCaptured)
+    {
+        <text>Recapture</text>
+    }
+    else
+    {
+        <text>Capture</text>
+    }
+</FluentButton>
+
+
+@code {
+    bool imageCaptured;
+    bool imageUploaded;
+
+    MemoryStream stream = new MemoryStream();
+
+    private async Task CaptureImage()
+    {
+        if (MediaPicker.Default.IsCaptureSupported)
+        {
+            FileResult photo = await MediaPicker.Default.CapturePhotoAsync();
+
+            if (photo != null)
+            {
+                using Stream sourceStream = await photo.OpenReadAsync();
+                await sourceStream.CopyToAsync(stream);
+                stream.Seek(0, SeekOrigin.Begin);
+
+                imageCaptured = true;
+            }
+        }
+    }
+
+    private async Task UploadImage()
+    {
+        try
+        {
+            var id = Guid.NewGuid().ToString();
+
+            await ImageClient.UploadImageAsync(id, new FileParameter(stream));
+
+            imageUploaded = true;
+
+            ToastService.ShowInfo("Image uploaded");
+        }
+        catch (Exception)
+        {
+            ToastService.ShowError("Failed to upload image");
+        }
+    }
+}

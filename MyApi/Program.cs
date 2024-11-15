@@ -51,6 +51,23 @@ app.MapGet("/weatherforecast", () =>
 .WithTags("WeatherForecast")
 .WithOpenApi();
 
+app.MapPost("/image/{id}", async (string id, IFormFile form) =>
+{
+    using (var stream = form.OpenReadStream())
+    {
+        var memory = new MemoryStream();
+        await stream.CopyToAsync(memory);
+        stream.Seek(0, SeekOrigin.Begin);
+    }
+
+    Console.WriteLine(id);
+
+    // Persist file
+})
+.WithName("Image_UploadImage")
+.WithTags("Image")
+.WithOpenApi();
+
 app.MapPersonsEndpoints();
 
 try

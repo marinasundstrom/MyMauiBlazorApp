@@ -41,6 +41,9 @@ public static class MauiProgram
         builder.Services.AddHttpClient<IPersonsClient>("MyApi")
             .AddTypedClient<IPersonsClient>((http, sp) => new PersonsClient(http));
 
+        builder.Services.AddHttpClient<IImageClient>("MyApi")
+            .AddTypedClient<IImageClient>((http, sp) => new ImageClient(http));
+
         return builder.Build();
     }
 }
