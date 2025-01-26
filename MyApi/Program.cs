@@ -1,31 +1,47 @@
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Http.Json;
 using Microsoft.EntityFrameworkCore;
 using MyApi;
 using MyApi.Data;
+using NJsonSchema.Generation;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+        options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    });
+
 // Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddOpenApiDocument(config =>
 {
-    config.DocumentName = "MyApi";
-    config.PostProcess = document =>
-    {
-        document.Info.Title = "MyApi";
-    };
+    config.DocumentName = "v1";
+    config.Title = "MyApi";
+    config.Version = "v1";
 });
 
-builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DbConnection")));
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+{
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DbConnection"));
+
+#if DEBUG
+    options.EnableSensitiveDataLogging();
+#endif
+});
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseOpenApi(p => p.Path = "/swagger/{documentName}/openapi.yaml");
-    app.UseSwaggerUi(p => p.DocumentPath = "/swagger/{documentName}/openapi.yaml");
+    app.UseOpenApi(p => p.Path = "/openapi/{documentName}.yaml");
+    app.UseSwaggerUi(p => p.DocumentPath = "/openapi/{documentName}.yaml");
 }
 
 app.UseHttpsRedirection();

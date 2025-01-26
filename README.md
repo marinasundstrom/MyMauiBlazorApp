@@ -22,6 +22,14 @@ MacOS (Catalyst)
 
 The easiest way for the mobile apps to connect to the backend is using DevTunnel.
 
+Install DevTunnel with Brew (macOS):
+
+```
+brew install devtunnel
+```
+
+Launch DevTunnel:
+
 ```
 devtunnel host -p 5286 -a
 ```
@@ -44,3 +52,5 @@ To start the Postgresql database:
 ```
 docker compose up
 ```
+
+The database will be created when the WebApi is started, provided that the database is up an running.

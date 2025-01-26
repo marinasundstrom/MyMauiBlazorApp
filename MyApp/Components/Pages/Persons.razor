@@ -29,8 +29,8 @@
         </FluentStack>
     </LoadingContent>
 </FluentDataGrid>
-
 <FluentPaginator State="@pagination" />
+
 
 @code {
     FluentDataGrid<Person> personsDataGrid = default!;
@@ -43,19 +43,25 @@
         {
             try
             {
+                personsDataGrid?.SetLoadingState(true);
+
                 var results = await PersonsClient.GetPersonsAsync(pagination.CurrentPageIndex + 1, pagination.ItemsPerPage);
 
                 return GridItemsProviderResult.From(
-    items: results.Items,
-    totalItemCount: (int)results.Total);
+                    items: results.Items,
+                    totalItemCount: (int)results.Total);
             }
             catch (Exception e)
             {
                 ToastService.ShowInfo("Failed to load persons");
 
                 return GridItemsProviderResult.From<Person>(
-    items: [],
-    totalItemCount: 0);
+                    items: [],
+                    totalItemCount: 0);
+            }
+            finally
+            {
+                personsDataGrid?.SetLoadingState(false);
             }
         };
     }
@@ -81,13 +87,14 @@
         {
             data = (AddPersonDialog.RegisterContent)result.Data;
 
-            await PersonsClient.CreatePersonAsync(new MyApi.CreatePersonRequest {
-                FirstName = data.FirstName,
-                GivenName = data.GivenName,
-                MiddleName = data.MiddleName,
-                LastName = data.LastName,
-                DateOfBirth = data.DateOfBirth.GetValueOrDefault()
-            });
+            await PersonsClient.CreatePersonAsync(new MyApi.CreatePersonRequest
+                {
+                    FirstName = data.FirstName,
+                    GivenName = data.GivenName,
+                    MiddleName = data.MiddleName,
+                    LastName = data.LastName,
+                    DateOfBirth = data.DateOfBirth.GetValueOrDefault()
+                });
 
             await personsDataGrid.RefreshDataAsync();
         }

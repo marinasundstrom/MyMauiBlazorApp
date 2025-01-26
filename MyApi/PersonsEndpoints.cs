@@ -57,8 +57,10 @@ public static class PersonsEndpoints
 
             var link = linkGenerator.GetPathByName(httpContext, "Persons_CreatePerson", new { id = r.Entity.Id });
 
-            return TypedResults.Created(link, r.Entity);
+            return Created(link, r.Entity);
         })
+        .Produces<Person>(StatusCodes.Status201Created)
+        .Produces<Person>(StatusCodes.Status200OK) // WORKAROUND FOR OpenAPI
         .WithName("Persons_CreatePerson")
         .WithTags("Persons")
         .WithDescription("Create a person")

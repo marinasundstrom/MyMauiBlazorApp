@@ -17,12 +17,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
-    <PackageReference Include="Microsoft.Extensions.ApiDescription.Client" Version="8.0.0">
+    <PackageReference Include="Microsoft.Extensions.ApiDescription.Client" Version="9.0.0">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="NSwag.ApiDescription.Client" Version="13.18.2">
+    <PackageReference Include="NSwag.ApiDescription.Client" Version="14.2.0">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
