@@ -29,7 +29,7 @@
         <ApplicationTitle>MyApp</ApplicationTitle>
 
         <!-- App Identifier -->
-        <ApplicationId>com.companyname.myapp</ApplicationId>
+        <ApplicationId>com.sundis.MyApp</ApplicationId>
 
         <!-- Versions -->
         <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
